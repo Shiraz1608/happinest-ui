@@ -1,0 +1,196 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Kalam:wght@300;400;700&display=swap");
+
+/* 2. Import Tailwind after fonts */
+@import "tailwindcss";
+
+/* 3. Custom CSS */
+:root {
+  --font-size: 16px;
+  --font-heading: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --background: #ffffff;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --primary: #030213;
+  --primary-foreground: #ffffff;
+  --secondary: #ececf0;
+  --secondary-foreground: #030213;
+  --muted: #ececf0;
+  --muted-foreground: #717182;
+  --border: rgba(0,0,0,0.15);
+  --input-background: #f3f3f5;
+
+  /* Brand colors */
+  --brand-pink: #D94DD8;
+  --brand-teal: #27E2D6;
+  --brand-purple: #7B5BE8;
+
+  --radius: 0.625rem;
+
+  /* Gradient variables for body */
+  --body-gradient: radial-gradient(
+    circle at top left,
+    #ffeaf6 0%,
+    #f5f3ff 50%,
+    #e8fff8 100%
+  );
+}
+
+/*  Light Theme background */
+body {
+  background: var(--body-gradient);
+  color: #111;
+  transition: background 0.8s ease, color 0.5s ease;
+  min-height: 100vh;
+}
+
+/*  Dark Theme */
+.dark {
+  --background: #171717;
+  --foreground: #ffffff;
+  --card: #1A1A1A;
+  --card-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #030213;
+  --secondary: #333333;
+  --secondary-foreground: #ffffff;
+  --muted: #333333;
+  --muted-foreground: #cccccc;
+  --border: rgba(255,255,255,0.2);
+  --input-background: #2b2b2b;
+
+  --brand-pink: #E85BA5;
+  --brand-teal: #1FD9E8;
+  --brand-purple: #9B7BF5;
+
+  --body-gradient: radial-gradient(
+    circle at 50% 40%,
+    rgba(217, 77, 216, 0.25),
+    rgba(15, 10, 40, 1) 30%,
+    rgba(5, 0, 20, 1) 80%
+  );
+}
+
+
+/*  Dark body */
+body.dark,
+.dark body {
+  background: var(--body-gradient);
+  color: #f3e8ff;
+  background-attachment: fixed;
+  transition: background 0.8s ease, color 0.5s ease;
+}
+
+/* Floating glow overlays */
+.dark::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 70%, rgba(123, 91, 232, 0.12), transparent 60%),
+    radial-gradient(circle at 80% 30%, rgba(39, 226, 214, 0.08), transparent 60%);
+  z-index: -1;
+  animation: glowMove 12s ease-in-out infinite alternate;
+}
+
+.dark::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 40%,
+    rgba(255, 0, 255, 0.1),
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  z-index: -1;
+}
+
+@keyframes glowMove {
+  0% { transform: translateY(0px) scale(1); }
+  100% { transform: translateY(-20px) scale(1.05); }
+}
+/* 🖤 Navbar/footer black glass style */
+.dark header,
+.dark footer {
+  background: rgba(0, 0, 0, 0.7); /* solid black glass instead of purple-blue */
+  backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #e5e5e5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  transition: background 0.6s ease;
+}
+
+/* Navbar/footer glass style */
+
+
+/* Dark glass cards/forms */
+.dark .bg-white\/80 {
+  background: rgba(20, 20, 30, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #eaeaea;
+}
+
+/* Tailwind base */
+@layer base {
+  html {
+    font-size: var(--font-size);
+  }
+  body {
+    font-family: var(--font-body);
+    color: var(--foreground);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+  }
+  p, label, input, textarea, select, button {
+    font-family: var(--font-body);
+  }
+  input, textarea, select {
+    background-color: var(--input-background);
+    border-color: var(--border);
+  }
+  button {
+    cursor: pointer;
+  }
+}
+
+/*  Animations */
+@keyframes shimmer { 0% { transform: translateX(-100%);} 100% {transform: translateX(100%);} }
+.animate-shimmer { animation: shimmer 3s ease-in-out infinite; }
+
+@keyframes float { 0% { transform: translateY(100vh) scale(0); opacity: 0;} 10% { opacity: 1;} 90% { opacity: 1;} 100% { transform: translateY(-100vh) scale(1.5); opacity: 0;} }
+.animate-float { animation: float 15s ease-in-out infinite; }
+
+@keyframes float-slow { 0%,100% { transform: translateY(0); opacity:0.3;} 50% { transform: translateY(-20px); opacity:0.5;} }
+.animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
+
+@keyframes sparkle { 0%,100% { transform: scale(0); opacity:0;} 50% { transform: scale(1); opacity:1; } }
+.animate-sparkle { animation: sparkle 3s ease-in-out infinite; }
+
+@keyframes light-ray { 0%,100% {opacity:0; transform: translateY(-100%);} 50% {opacity:0.3; transform: translateY(0);} }
+.animate-light-ray { animation: light-ray 6s ease-in-out infinite; }
+
+@keyframes slide-up {
+  0% { transform: translateY(100%); opacity: 0; }
+  60% { transform: translateY(-10%); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up { animation: slide-up 0.4s ease-out; }
+@keyframes twinkle {
+          0%,
+          100% {
+            transform: scale(0);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        .animate-twinkle {
+          animation: twinkle var(--animation-duration, 3s) ease-in-out infinite;
+        }
