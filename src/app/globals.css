@@ -45,7 +45,83 @@ body {
   transition: background 0.8s ease, color 0.5s ease;
   min-height: 100vh;
 }
+/* Dark Mode Variables */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand-pink: #f472b6;
+    --brand-teal: #4fd1c5;
+    --brand-purple: #a855f7;
+    --gradient-bg-from: #1e293b;
+    --gradient-bg-via: #2e1065;
+    --gradient-bg-to: #0e7490;
+    --background: #1a1a24;
+    --border: #2d3748;
+    --ring: #60a5fa;
+    --accent: #374151;
+    --accent-foreground: #d1d5db;
+    --muted: #4b5563;
+    --muted-foreground: #9ca3af;
+    --input: #374151;
+    --destructive: #b91c1c;
+  }
+}
 
+/* Animations */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-30px) translateX(20px) rotate(5deg);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-15px) translateX(-20px) rotate(-5deg);
+    opacity: 0.3;
+  }
+  75% {
+    transform: translateY(-35px) translateX(15px) rotate(3deg);
+    opacity: 0.25;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+@keyframes light-ray {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle ease-in-out infinite;
+}
+
+.animate-light-ray {
+  animation: light-ray 6s ease-in-out infinite;
+}
 /*  Dark Theme */
 .dark {
   --background: #171717;

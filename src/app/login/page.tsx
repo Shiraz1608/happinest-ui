@@ -4,6 +4,7 @@ import OrganizerHeader from "@/components/OrganizerHeader";
 import OrganizerLoginForm from "@/components/OrganizerLoginForm";
 import OrganizerFooter from "@/components/OrganizerFooter";
 import TwinkleAnimation from "@/components/TwinkleAnimation";
+import EventAnimation from "@/components/EventAnimation";
 
 export default function OrganizerLoginPage() {
   const { theme } = useTheme();
@@ -17,6 +18,8 @@ export default function OrganizerLoginPage() {
       }`}
     >
       <TwinkleAnimation />
+            <EventAnimation />
+
       <OrganizerHeader />
 
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-12 text-gray-800 dark:text-purple-100">
