@@ -27,20 +27,14 @@
   --brand-teal: #27E2D6;
   --brand-purple: #7B5BE8;
 
-  --radius: 0.625rem;
 
   /* Gradient variables for body */
-  --body-gradient: radial-gradient(
-    circle at top left,
-    #ffeaf6 0%,
-    #f5f3ff 50%,
-    #e8fff8 100%
-  );
+
 }
 
 /*  Light Theme background */
 body {
-  background: var(--body-gradient);
+  background: black;
   color: #111;
   transition: background 0.8s ease, color 0.5s ease;
   min-height: 100vh;
@@ -141,62 +135,20 @@ body {
   --brand-teal: #1FD9E8;
   --brand-purple: #9B7BF5;
 
-  --body-gradient: radial-gradient(
-    circle at 50% 40%,
-    rgba(217, 77, 216, 0.25),
-    rgba(15, 10, 40, 1) 30%,
-    rgba(5, 0, 20, 1) 80%
+  --body-gradient: linear-gradient(
+    to right,
+    var(--brand-pink),
+    var(--brand-teal)
   );
 }
 
 
-/*  Dark body */
+
 body.dark,
 .dark body {
-  background: var(--body-gradient);
   color: #f3e8ff;
   background-attachment: fixed;
   transition: background 0.8s ease, color 0.5s ease;
-}
-
-/* Floating glow overlays */
-.dark::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(circle at 10% 70%, rgba(123, 91, 232, 0.12), transparent 60%),
-    radial-gradient(circle at 80% 30%, rgba(39, 226, 214, 0.08), transparent 60%);
-  z-index: -1;
-  animation: glowMove 12s ease-in-out infinite alternate;
-}
-
-.dark::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(
-    circle at 50% 40%,
-    rgba(255, 0, 255, 0.1),
-    transparent 70%
-  );
-  mix-blend-mode: screen;
-  z-index: -1;
-}
-
-@keyframes glowMove {
-  0% { transform: translateY(0px) scale(1); }
-  100% { transform: translateY(-20px) scale(1.05); }
-}
-/* 🖤 Navbar/footer black glass style */
-.dark header,
-.dark footer {
-  background: rgba(0, 0, 0, 0.7); /* solid black glass instead of purple-blue */
-  backdrop-filter: blur(12px);
-  border-color: rgba(255, 255, 255, 0.08);
-  color: #e5e5e5;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-  transition: background 0.6s ease;
 }
 
 /* Navbar/footer glass style */

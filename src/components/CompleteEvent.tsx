@@ -39,7 +39,7 @@ export default function CompleteEvents({ events, view }: CompleteEventsProps) {
           }`}
         >
           <span className="text-cyan-500">
-           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check h-6 w-6 text-[var(--brand-pink)]" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-circle-check h-6 w-6 text-[var(--brand-pink)]" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
           </span>
           Complete Events
           <span className="text-sm bg-cyan-400 text-cyan-700 dark:bg-cyan-800 dark:text-cyan-100 rounded-md px-2 py-0.5">

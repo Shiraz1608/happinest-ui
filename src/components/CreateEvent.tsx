@@ -2,43 +2,45 @@
 
 import Link from 'next/link';
 import { Calendar, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from './Card';
 import { useTheme } from '@/app/providers/ThemeProvider';
 
 export default function EmptyEventsCard() {
   const { theme } = useTheme();
 
-  // ✅ Apply light/dark background dynamically
+  // ✅ Light/Dark mode background
   const cardBg =
     theme === 'light'
       ? 'bg-white border border-gray-300'
-      : 'bg-gray-800 border border-white/10';
+      : 'bg-gray-900 border border-white/10';
 
   return (
-    <div className="relative z-10 max-w-7xl mx-auto px-8 py-8">
-      <Card className={`${cardBg} backdrop-blur-sm transition-colors duration-300`}>
-        <CardContent className="text-center py-16">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-teal)] opacity-20 mb-4">
-            <Calendar className="h-8 w-8 text-white" />
+    <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
+      <Card
+        className={`${cardBg} backdrop-blur-sm transition-colors duration-300 h-[400px] flex items-center justify-center`}
+      >
+        <CardContent className="text-center py-2">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-teal)] opacity-20 mb-6">
+            <Calendar className="h-10 w-10 text-white" />
           </div>
 
-          <h3 className="text-xl font-semibold mb-2">No events yet</h3>
+          <h3 className="text-2xl font-semibold mb-3">No events yet</h3>
 
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground mb-8 text-base">
             Create your first event to get started
           </p>
 
-          {/* CTA → /addevent */}
-          <Button
-            asChild
-            className="bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-teal)] text-white hover:opacity-90 transition-opacity h-10 px-6"
-          >
-            <Link href="">
+          <Link href="/addevent">
+            <button
+              className="bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-purple)]
+                         text-white hover:opacity-90 transition-opacity
+                         h-12 px-8 rounded-lg inline-flex items-center justify-center
+                         text-base font-medium shadow-md hover:scale-105 active:scale-95 transition"
+            >
               <Plus className="mr-2 h-5 w-5" />
               Create Your First Event
-            </Link>
-          </Button>
+            </button>
+          </Link>
         </CardContent>
       </Card>
     </div>

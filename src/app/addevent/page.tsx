@@ -70,8 +70,6 @@ const AddEventPage = () => {
           <TemplateSelector activeTab={activeTab} setActiveTab={setActiveTab} />
         </section>
 
-        {/* ✅ Footer */}
-        <Footer />
       </main>
     </div>
   );

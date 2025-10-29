@@ -11,7 +11,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen transition-colors duration-700">
+      <body className="">
         <ThemeProvider>
           <SessionProvider>{children}</SessionProvider>
         </ThemeProvider>

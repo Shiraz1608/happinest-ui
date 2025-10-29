@@ -20,7 +20,7 @@ const Navbar = () => {
       {/* Background behind navbar (changes with theme) */}
       <div
         className={`absolute top-0 left-0 right-0 h-[5rem] z-0 transition-colors duration-500 ${
-          theme === "light" ? "bg-white" : "bg-[#0a0514]"
+          theme === "light" ? "bg-white" : "bg-black"
         }`}
       />
 
@@ -57,9 +57,10 @@ const Navbar = () => {
         {/* Right-side buttons */}
         <div className="flex items-center gap-2">
           {/* Theme Toggle */}
-          <button className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent hover:text-accent-foreground transition-all">
-            <ThemeToggle />
-          </button>
+          <div className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent hover:text-accent-foreground transition-all">
+  <ThemeToggle />
+</div>
+
 
           {/* Exit Button */}
           <button

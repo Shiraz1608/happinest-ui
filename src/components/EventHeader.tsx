@@ -5,8 +5,7 @@ import React from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useTheme } from "@/app/providers/ThemeProvider";
-import { Button } from "./ui/Button"; // <-- your Button with asChild support
-
+import { Button } from '@/components/ui/Button';
 const EventHeader = () => {
   const { theme } = useTheme();
 
@@ -15,7 +14,7 @@ const EventHeader = () => {
       className={`relative z-10 border-b w-full backdrop-blur-sm shadow-sm transition-colors duration-500 ${
         theme === "light"
           ? "border-gray-100 bg-white/80"
-          : "border-gray-700 bg-gray-800"
+          : "bg-gray-900"
       }`}
     >
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center px-8 py-6 gap-4">
@@ -40,17 +39,18 @@ const EventHeader = () => {
         {/* Buttons */}
         <div className="flex items-center gap-3">
           {/* CREATE NEW EVENT – Now navigates to /events/create */}
-          <Button
-            asChild
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-400 to-purple-500 
-                       text-white px-6 py-2.5 rounded-md text-sm font-medium shadow-sm 
-                       hover:opacity-90 hover:scale-105 active:scale-95 transition h-10"
-          >
-            <Link href="">
-              <Plus className="w-5 h-5" aria-hidden="true" />
-              Create New Event
-            </Link>
-          </Button>
+
+          <Link href="/addevent">
+  <button
+    className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-400 to-purple-500 
+               text-white px-6 py-2.5 rounded-md text-sm font-medium shadow-sm 
+               hover:opacity-90 hover:scale-105 active:scale-95 transition h-10"
+  >
+    <Plus className="w-5 h-5" aria-hidden="true" />
+    Create New Event
+  </button>
+</Link>
+
 
           {/* Clear Events Button (still works as before) */}
           {/* <button

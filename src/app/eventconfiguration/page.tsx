@@ -8,7 +8,7 @@ import { SecondaryNav } from "@/components/SecondaryNav";
 import { EventHeroCard } from "@/components/EventHeroCard";
 import { EventModulesCard } from "@/components/EventModulesCard";
 import { GuestThemeCard } from "@/components/GuestThemeCard";
-import { EventSettingsCard } from "@/components/EventSettingsCard";
+// import { EventSettingsCard } from "@/components/EventSettingsCard";
 import { ColorThemeCard } from "@/components/ColorThemeCard";
 import { ReadyToLaunchCard } from "@/components/ReadyToLaunchCard";
 import { ConfigurationCompleteCard } from "@/components/ConfigurationCompleteCard";
@@ -66,7 +66,7 @@ export default function EventConfigurePage() {
               </div>
 
               <div className="space-y-6">
-                <EventSettingsCard />
+                {/* <EventSettingsCard /> */}
                 <ColorThemeCard />
                 <ReadyToLaunchCard activeModulesCount={activeModules.length} />
               </div>

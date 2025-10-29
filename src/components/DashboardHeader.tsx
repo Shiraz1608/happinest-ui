@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+
 import { useState, useRef, useEffect } from "react";
 import { Plus, Trash2, Settings, LogOut } from "lucide-react";
 import { useTheme } from "@/app/providers/ThemeProvider";
@@ -10,7 +12,14 @@ export default function DashboardHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
-
+    const router = useRouter();
+  
+ //  Unified logout
+  const handleSignOut = () => {
+  
+        setTimeout(() => router.push("/login"), 1500);
+    
+  }
   // --- close dropdown when clicking outside ---
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -24,7 +33,7 @@ export default function DashboardHeader() {
 
   return (
     // <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-    <header className="w-full sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 dark:bg-[#0b0f1a] backdrop-blur-xl shadow-sm z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+<header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 dark:bg-black/90 backdrop-blur-xl shadow-sm supports-[backdrop-filter]:bg-background/95">
       {/* ---------------- Top Navbar ---------------- */}
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
         {/* Left Section - Logo + Text */}
@@ -36,7 +45,7 @@ export default function DashboardHeader() {
             height={35}
             className="h-8 w-auto"
           />
-          <span className="hidden sm:inline text-sm font-medium text-gray-600 dark:text-gray-400 border-l pl-3">
+          <span className="hidden sm:inline text-sm font-medium text-gray-400 dark:text-gray-400 border-l pl-3">
             Organizer Portal
           </span>
         </div>
@@ -62,7 +71,7 @@ export default function DashboardHeader() {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="relative h-9 w-9 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 
+              className="relative h-9 w-9 rounded-full bg-gradient-to-r from-pink-500 to-teal-500 
                          text-white flex items-center justify-center font-semibold hover:scale-105 
                          transition-all duration-200 focus:outline-none focus:ring-2 
                          focus:ring-offset-2 focus:ring-pink-300"
@@ -96,7 +105,7 @@ export default function DashboardHeader() {
                 </button>
 
                 <button
-                  onClick={() => console.log("Logout")}
+                  onClick={handleSignOut}
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm 
                              text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 
                              transition-colors"
