@@ -14,16 +14,13 @@ import ThemeTab from '../tabs/ThemeTab';
 import SettingsTab from '../tabs/SettingsTab';
 import ConfigurationComplete from '../tabs/ConfigurationComplete';
 
-
-
-
-export default function TabsSection({ data,settingdata,eventModulesdata,eventActivities }: { data: any,settingdata:any,eventModulesdata:any,eventActivities:any }) {
+export default function TabsSection({ data, settingdata, eventModulesdata, eventActivities, eventBudget, eventVenues }: { data: any; settingdata: any; eventModulesdata: any; eventActivities: any; eventBudget?: any; eventVenues?: any[] }) {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('overview');
   const TabsData = data; // or however you're fetching it
   const SettingsData = settingdata;
-   const Modulesdata = eventModulesdata;
-   const EventActivities = eventActivities;
+  const Modulesdata = eventModulesdata;
+  const EventActivities = eventActivities;
   const tabs = [
     { id: 'overview', label: 'Overview', icon: <LayoutGrid className="h-4 w-4" aria-hidden="true" /> },
     { 
@@ -33,7 +30,7 @@ export default function TabsSection({ data,settingdata,eventModulesdata,eventAct
       badge: (
         <span className={`items-center justify-center rounded-md border py-0.5 font-medium w-fit whitespace-nowrap shrink-0 text-xs hidden sm:flex data-[state=active]:bg-white/20 data-[state=active]:text-white h-5 px-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-[color,box-shadow] ${
         theme==="light"?"bg-gray-200 border-gray-200":"bg-neutral-900 border-neutral-800 text-white"}`}>
-          10
+          {Modulesdata?.activeModuleCount ?? 0}
         </span>
       ),
     },
@@ -73,7 +70,14 @@ export default function TabsSection({ data,settingdata,eventModulesdata,eventAct
 {activeTab === 'overview' && TabsData && Modulesdata && SettingsData && (
   <OverviewTab data={TabsData} settingdata={SettingsData} eventModules={Modulesdata} />
 )}
-{activeTab === 'modules' && <ModulesTab eventActivities={eventActivities} />}
+{activeTab === 'modules' && (
+  <ModulesTab {...({
+    eventActivities: EventActivities,
+    eventBudget,
+    eventVenues,
+    eventModules: Modulesdata,
+  } as any)} />
+)}
       {activeTab === 'theme' && <ThemeTab />}
       {activeTab === 'settings' && <SettingsTab />}
 

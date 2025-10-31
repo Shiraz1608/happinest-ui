@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Sparkles,
   Settings,
@@ -42,19 +42,43 @@ interface FormattedActivity {
 }
 
 import { useTheme } from "@/app/providers/ThemeProvider";
-export default function ModulesTab({ eventActivities }: { eventActivities: DayActivities[]  }) {
+export default function ModulesTab({ eventActivities, eventBudget, eventVenues, eventModules }: { eventActivities: DayActivities[]; eventBudget?: any; eventVenues?: any[]; eventModules?: any }) {
   const { theme } = useTheme();
+
   const [modules, setModules] = useState<Module[]>([
-    { name: "Venue", desc: "Manage ceremony, cocktail, and reception locations", ai: true, required: false, enabled: true },
-    { name: "Vendors", desc: "Track catering, décor, photography, and entertainment", ai: false, required: false, enabled: true },
+    { name: "Venue", desc: "Manage ceremony, cocktail, and reception locations", ai: true, required: false, enabled: false },
+    { name: "Vendors", desc: "Track catering, décor, photography, and entertainment", ai: false, required: false, enabled: false },
     { name: "Guests", desc: "RSVP management and accommodation tracking", ai: false, required: true, enabled: true },
-    { name: "Schedule", desc: "Coordinate ceremonies, traditions, and festivities", ai: true, required: false, enabled: true },
-    { name: "Logistics", desc: "Setup coordination, permits, and transportation", ai: false, required: false, enabled: true },
-    { name: "Budget", desc: "Track wedding expenses across multiple vendors and categories", ai: true, required: false, enabled: true },
+    { name: "Schedule", desc: "Coordinate ceremonies, traditions, and festivities", ai: true, required: false, enabled: false },
+    { name: "Logistics", desc: "Setup coordination, permits, and transportation", ai: false, required: false, enabled: false },
+    { name: "Budget", desc: "Track wedding expenses across multiple vendors and categories", ai: true, required: false, enabled: false },
     { name: "Gallery", desc: "Share professional photos and guest uploads", ai: false, required: true, enabled: true },
     { name: "HappiVid", desc: "Create cinematic wedding highlight videos", ai: false, required: true, enabled: true },
     { name: "Analytics", desc: "Track RSVPs, attendance, and engagement", ai: false, required: false, enabled: false },
+    { name: "Approval", desc: "Workflow approvals for event setup and changes", ai: false, required: false, enabled: false },
   ]);
+
+  // Initialize module enabled states from API eventModules
+  useEffect(() => {
+    if (!eventModules) return;
+    setModules(prev => prev.map(m => {
+      const keyMap: Record<string, string> = {
+        Venue: 'venue',
+        Vendors: 'vendors',
+        Guests: 'guest',
+        Schedule: 'schedule',
+        Logistics: 'logistics',
+        Budget: 'budget',
+        Gallery: 'gallery',
+        HappiVid: 'happiVids',
+        Analytics: 'analytics',
+        Approval: 'approval',
+      };
+      const apiKey = keyMap[m.name];
+      const enabledFromApi = apiKey ? !!(eventModules as any)[apiKey] : m.enabled;
+      return { ...m, enabled: m.required ? true : enabledFromApi };
+    }));
+  }, [eventModules]);
 
   const [isScheduleActive] = useState(true);
   const [isBudgetActive] = useState(true);
@@ -81,56 +105,73 @@ export default function ModulesTab({ eventActivities }: { eventActivities: DayAc
     { day: "Day 3", time: "4:00 PM", duration: "30 min", activity: "Closing Ceremonies" },
   ];
 
-  const budgetSuggestions = [
-    { category: "Venue & Accommodation", amount: 500000, percentage: 25, currency: "₹" },
-    { category: "Catering (Multi-cuisine)", amount: 450000, percentage: 28, currency: "₹" },
-    { category: "Decorations & Mandap", amount: 350000, percentage: 15, currency: "₹" },
-    { category: "Photography & Videography", amount: 200000, percentage: 10, currency: "₹" },
-    { category: "Entertainment (DJ, Band, Artists)", amount: 150000, percentage: 8, currency: "₹" },
-    { category: "Makeup & Styling", amount: 80000, percentage: 4, currency: "₹" },
-    { category: "Wedding Cards & Favors", amount: 75000, percentage: 5, currency: "₹" },
-    { category: "Transportation & Logistics", amount: 100000, percentage: 5, currency: "₹" },
-  ];
+  const budgetSuggestions = useMemo(() => {
+    if (eventBudget && Array.isArray(eventBudget.categories) && eventBudget.categories.length > 0) {
+      return eventBudget.categories.map((cat: any) => ({
+        category: cat.name,
+        amount: cat.amount,
+        percentage: cat.percent,
+        currency: eventBudget.currency === 'INR' ? '₹' : ''
+      }));
+    }
+    return [
+      { category: "Venue & Accommodation", amount: 500000, percentage: 25, currency: "₹" },
+      { category: "Catering (Multi-cuisine)", amount: 450000, percentage: 28, currency: "₹" },
+      { category: "Decorations & Mandap", amount: 350000, percentage: 15, currency: "₹" },
+      { category: "Photography & Videography", amount: 200000, percentage: 10, currency: "₹" },
+      { category: "Entertainment (DJ, Band, Artists)", amount: 150000, percentage: 8, currency: "₹" },
+      { category: "Makeup & Styling", amount: 80000, percentage: 4, currency: "₹" },
+      { category: "Wedding Cards & Favors", amount: 75000, percentage: 5, currency: "₹" },
+      { category: "Transportation & Logistics", amount: 100000, percentage: 5, currency: "₹" },
+    ];
+  }, [eventBudget]);
 
-  const venueSuggestions = [
-    { name: "Five Star Hotel Ballroom", capacity: "200-500", style: "Luxury & Elegant" },
-    { name: "Garden Banquet Hall", capacity: "150-400", style: "Outdoor & Indoor Options" },
-    { name: "Heritage Palace Venue", capacity: "300-600", style: "Royal & Traditional" },
-    { name: "Resort Lawns & Poolside", capacity: "100-300", style: "Scenic & Romantic" },
-  ];
+  const venueSuggestions = useMemo(() => {
+    if (Array.isArray(eventVenues) && eventVenues.length > 0) {
+      return eventVenues.map((v: any) => ({
+        name: v.name || '',
+        capacity: v.capacity || (v.capacityMin && v.capacityMax ? `${v.capacityMin}-${v.capacityMax}` : ''),
+        style: v.style || '',
+      }));
+    }
+    return [
+      { name: "Five Star Hotel Ballroom", capacity: "200-500", style: "Luxury & Elegant" },
+      { name: "Garden Banquet Hall", capacity: "150-400", style: "Outdoor & Indoor Options" },
+      { name: "Heritage Palace Venue", capacity: "300-600", style: "Royal & Traditional" },
+      { name: "Resort Lawns & Poolside", capacity: "100-300", style: "Scenic & Romantic" },
+    ];
+  }, [eventVenues]);
 
   const hasActiveModules = isScheduleActive || isBudgetActive || isVenueActive;
   const activeAICount = [isScheduleActive, isBudgetActive, isVenueActive].filter(Boolean).length;
 
- // Assuming eventActivities is available in this scope
-const activitiesByDay = useMemo(() => {
-  const acc: Record<string, Array<{ time: string; duration: string; activity: string; originalIndex: number }>> = {};
-  let index = 0;
-
-  eventActivities.forEach((dayItem, dayIdx) => {
-    const dayKey = `Day ${dayIdx + 1}`;
-    acc[dayKey] = dayItem.items.map((activity) => {
-      const formattedActivity = {
-        time: activity.startTime,
-        duration: `${activity.durationMinutes} min`,
-        activity: activity.title,
-        originalIndex: index++,
-      };
-      return formattedActivity;
+  // Assuming eventActivities is available in this scope
+  const activitiesByDay = useMemo(() => {
+    const acc: Record<string, Array<{ time: string; duration: string; activity: string; originalIndex: number }>> = {};
+    let index = 0;
+    eventActivities.forEach((dayItem, dayIdx) => {
+      const dayKey = `Day ${dayIdx + 1}`;
+      acc[dayKey] = dayItem.items.map((activity) => {
+        const formattedActivity = {
+          time: activity.startTime,
+          duration: `${activity.durationMinutes} min`,
+          activity: activity.title,
+          originalIndex: index++,
+        };
+        return formattedActivity;
+      });
     });
-  });
+    return acc;
+  }, [eventActivities]);
 
-  return acc;
-}, [eventActivities]);
+  // Days for tabs
+  const days = Object.keys(activitiesByDay).sort();
 
-// Days for tabs
-const days = Object.keys(activitiesByDay).sort();
+  // Current day activities
+  const currentDayActivities = activitiesByDay[selectedDay] || [];
 
-// Current day activities
-const currentDayActivities = activitiesByDay[selectedDay] || [];
-
-// Selected count in the current day
-const selectedInDay = currentDayActivities.filter((item) => selectedActivities.has(item.originalIndex)).length;
+  // Selected count in the current day
+  const selectedInDay = currentDayActivities.filter((item) => selectedActivities.has(item.originalIndex)).length;
 
 
     const selectedBudgetTotal = budgetSuggestions
@@ -170,7 +211,7 @@ const selectedInDay = currentDayActivities.filter((item) => selectedActivities.h
     setSelectedBudgetItems(s);
   };
 
-  const selectAllBudgetItems = () => setSelectedBudgetItems(new Set(budgetSuggestions.map((_, i) => i)));
+  const selectAllBudgetItems = () => setSelectedBudgetItems(new Set(budgetSuggestions.map((_: unknown, i: number) => i)));
   const deselectAllBudgetItems = () => setSelectedBudgetItems(new Set());
 
   const toggleVenue = (idx: number) => {
@@ -183,8 +224,8 @@ const selectedInDay = currentDayActivities.filter((item) => selectedActivities.h
   const deselectAllVenues = () => setSelectedVenues(new Set());
 
   // Dynamic counts
-  const totalModules = modules.filter(m => m.name !== 'Overview').length;
-  const enabledCount = modules.filter(m => m.enabled || m.required).length;
+  const totalModules = modules.filter((m) => m.name !== 'Overview').length;
+  const enabledCount = modules.filter((m) => m.enabled || m.required).length;
   const aiEnabledCount = modules.filter(m => m.ai && (m.enabled || m.required)).length;
 
   return (
@@ -609,7 +650,7 @@ const selectedInDay = currentDayActivities.filter((item) => selectedActivities.h
         </div>
       </div>
 
-      {/* STEP 2: CONFIGURE EVENT MODULES */}
+ {/* STEP 2: CONFIGURE EVENT MODULES */}
       <div className={` rounded-2xl border border-gray-200 shadow-sm ${theme==="light"?
         "bg-white":"bg-black"
       }`}>
@@ -680,17 +721,17 @@ const selectedInDay = currentDayActivities.filter((item) => selectedActivities.h
                   <div
                     key={idx}
                     className={`
-  relative p-4 rounded-xl border transition-all duration-200
-  ${isEnabled
-    ? theme === "light"
-      ? "bg-gradient-to-br from-pink-50/80 to-purple-50/80 border-pink-200 shadow-sm hover:shadow-md"
-      : "bg-white/80 backdrop-blur-md border-pink-800 shadow-sm hover:shadow-lg"
-    : theme === "light"
-      ? "bg-gray-50 border-gray-200 opacity-60 hover:opacity-80"
-      : "bg-background border-gray-700 opacity-60 hover:opacity-80"}
-  ${allowCardToggle ? "cursor-pointer" : "cursor-not-allowed"}
-`}
-
+                      relative p-4 rounded-xl border transition-all duration-200
+                      ${isEnabled
+                     ? theme==="light"?
+                         'bg-gradient-to-br from-pink-50/80 to-purple-50/80 border-[var(--brand-pink)]/30 shadow-sm hover:shadow-md':
+                        "bg-gradient-to-br from-pink-950/10 via-purple-950/10 to-cyan-950/10 border-[var(--brand-pink)]/30  shadow-sm hover:shadow-md"
+                        
+                        : theme==="light"?'bg-gray-50  border  hover:opacity-80':
+                        'bg-background'
+                      }
+                       
+                    `}
                     onClick={(e) => {
                       const target = e.target as HTMLElement;
                       if (target.closest('[data-switch-root]') || target.closest('button')) return;
@@ -702,7 +743,7 @@ const selectedInDay = currentDayActivities.filter((item) => selectedActivities.h
                     {/* AI Badge */}
                     {hasAI && isEnabled && (
                       <div className="absolute top-3 right-3">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                        <span className="inline-flex items-center gap-1 rounded-full  border  border-[var(--brand-pink)]/30  px-2.5 py-1 text-xs font-medium  shadow-sm">
                           <Sparkles className="h-3 w-3" />
                           AI
                         </span>
@@ -712,7 +753,8 @@ const selectedInDay = currentDayActivities.filter((item) => selectedActivities.h
                     {/* Required Badge */}
                     {isRequired && (
                       <div className="absolute top-3 right-3">
-                        <span className={`inline-flex items-center gap-1 rounded-full  px-2.5 py-1 text-xs font-medium  ${theme==="light"?"bg-gray-100 text-gray-700":" bg-neutral-800 text-white"}`}>
+                        <span className={`inline-flex items-center gap-1 rounded-full  px-2.5 py-1 text-xs font-medium courser-not-allowed ${theme==="light"?"bg-gray-100 text-gray-700":" bg-neutral-800 text-white"}
+                          ${allowCardToggle ? 'cursor-not-allowed' : 'cursor-not-allowed'}`}>
                           <Lock className="h-3 w-3" />
                           Required
                         </span>
@@ -732,17 +774,19 @@ const selectedInDay = currentDayActivities.filter((item) => selectedActivities.h
                               });
                             }
                           }}
-                          disabled={isRequired}
-                           className={switchClasses}
+                          // disabled={isRequired}
+                          //  className={switchClasses}
                         />
                       </div>
 
-                      <span className={`font-semibold text-sm ${isEnabled ? 'text-gray-900' : 'text-gray-500'}`}>
+                      <span className={`font-semibold text-sm ${isEnabled ? theme==="light"? 'text-gray-900': "text-white":
+                        theme==="light"? 'text-gray-900':"text-white"}`}>
                         {module.name}
                       </span>
                     </div>
 
-                    <p className={`text-xs leading-relaxed pl-11 ${isEnabled ? 'text-gray-600' : 'text-gray-500'}`}>
+                    <p className={`text-xs leading-relaxed pl-11 ${isEnabled ? theme==="light"?'text-gray-600':"text-gray-400" :theme==="light"? 'text-gray-600':
+                      'text-gray-400'}`}>
                       {module.desc}
                     </p>
                   </div>
@@ -751,6 +795,9 @@ const selectedInDay = currentDayActivities.filter((item) => selectedActivities.h
             })()}
           </div>
         </div>
+
+
+
       </div>
     </div>
   );

@@ -26,6 +26,7 @@ export default function GenerateEventPage() {
   const [eventFlags, setEventFlags] = useState<any>(null);
   const [eventActivities, setEventActivities] = useState<any[]>([]);
   const [eventBudget, setEventBudget] = useState<any>(null);
+  const [eventVenues, setEventVenues] = useState<any[]>([]);
   const [eventFieldMeta, setEventFieldMeta] = useState<any[]>([]);
   const [needsReview, setNeedsReview] = useState<boolean>(false);
 
@@ -38,6 +39,7 @@ export default function GenerateEventPage() {
       const storedFlags = sessionStorage.getItem("aiEventFlags");
       const storedActivities = sessionStorage.getItem("aiEventActivities");
       const storedBudget = sessionStorage.getItem("aiEventBudget");
+      const storedVenues = sessionStorage.getItem("aiEventVenues");
       const storedFieldMeta = sessionStorage.getItem("aiEventFieldMeta");
       const storedNeedsReview = sessionStorage.getItem("aiEventNeedsReview");
 
@@ -47,6 +49,7 @@ export default function GenerateEventPage() {
       if (storedFlags) setEventFlags(JSON.parse(storedFlags));
       if (storedActivities) setEventActivities(JSON.parse(storedActivities));
       if (storedBudget) setEventBudget(JSON.parse(storedBudget));
+      if (storedVenues) setEventVenues(JSON.parse(storedVenues));
       if (storedFieldMeta) setEventFieldMeta(JSON.parse(storedFieldMeta));
       if (storedNeedsReview) setNeedsReview(JSON.parse(storedNeedsReview));
 
@@ -57,6 +60,7 @@ export default function GenerateEventPage() {
         eventFlags: JSON.parse(storedFlags || "{}"),
         eventActivities: JSON.parse(storedActivities || "[]"),
         eventBudget: JSON.parse(storedBudget || "{}"),
+        eventVenues: JSON.parse(storedVenues || "[]"),
         eventFieldMeta: JSON.parse(storedFieldMeta || "[]"),
         needsReview: JSON.parse(storedNeedsReview || "false"),
       });
@@ -84,7 +88,16 @@ export default function GenerateEventPage() {
           <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
             {eventData && (<RecommendationCard  data={eventData}/>)}
             <EventCard />
-             {eventData && (<TabsSection  data={eventData} settingdata={eventSettings} eventModulesdata={eventModules} eventActivities={eventActivities}/>)}
+             {eventData && (
+                <TabsSection
+                  data={eventData}
+                  settingdata={eventSettings}
+                  eventModulesdata={eventModules}
+                  eventActivities={eventActivities}
+                  eventBudget={eventBudget}
+                  eventVenues={eventVenues}
+                />
+              )}
           </div>
         </div>
       </div>
