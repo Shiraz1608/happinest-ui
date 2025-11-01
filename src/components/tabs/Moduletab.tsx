@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -14,6 +13,7 @@ import {
   Lock,
 } from "lucide-react";
 import { Switch } from "@/components/switch";
+import { useTheme } from "@/app/providers/ThemeProvider";
 
 interface Module {
   name: string;
@@ -22,6 +22,7 @@ interface Module {
   required: boolean;
   enabled: boolean;
 }
+
 interface ActivityItem {
   startTime: string;
   durationMinutes: number;
@@ -41,10 +42,54 @@ interface FormattedActivity {
   originalIndex: number;
 }
 
-import { useTheme } from "@/app/providers/ThemeProvider";
-export default function ModulesTab({ eventActivities, eventBudget, eventVenues, eventModules }: { eventActivities: DayActivities[]; eventBudget?: any; eventVenues?: any[]; eventModules?: any }) {
-  const { theme } = useTheme();
+// Define proper types for API props
+interface BudgetCategory {
+  name: string;
+  amount: number;
+  percent: number;
+}
 
+interface Budget {
+  currency: string;
+  total: number;
+  categories: BudgetCategory[];
+}
+
+interface EventBudget extends Budget {}
+
+interface EventVenue {
+  name?: string;
+  capacity?: string | number;
+  capacityMin?: number;
+  capacityMax?: number;
+  style?: string;
+}
+
+interface EventModules {
+  venue?: boolean;
+  vendors?: boolean;
+  guest?: boolean;
+  schedule?: boolean;
+  logistics?: boolean;
+  budget?: boolean;
+  gallery?: boolean;
+  happiVids?: boolean;
+  analytics?: boolean;
+  approval?: boolean;
+}
+
+export default function ModulesTab({
+  eventActivities,
+  eventBudget,
+  eventVenues,
+  eventModules,
+}: {
+  eventActivities: DayActivities[];
+  eventBudget?: EventBudget;
+  eventVenues?: EventVenue[];
+  eventModules?: EventModules;
+}) {
+  const { theme } = useTheme();
   const [modules, setModules] = useState<Module[]>([
     { name: "Venue", desc: "Manage ceremony, cocktail, and reception locations", ai: true, required: false, enabled: false },
     { name: "Vendors", desc: "Track catering, décor, photography, and entertainment", ai: false, required: false, enabled: false },
@@ -61,23 +106,25 @@ export default function ModulesTab({ eventActivities, eventBudget, eventVenues, 
   // Initialize module enabled states from API eventModules
   useEffect(() => {
     if (!eventModules) return;
-    setModules(prev => prev.map(m => {
-      const keyMap: Record<string, string> = {
-        Venue: 'venue',
-        Vendors: 'vendors',
-        Guests: 'guest',
-        Schedule: 'schedule',
-        Logistics: 'logistics',
-        Budget: 'budget',
-        Gallery: 'gallery',
-        HappiVid: 'happiVids',
-        Analytics: 'analytics',
-        Approval: 'approval',
-      };
-      const apiKey = keyMap[m.name];
-      const enabledFromApi = apiKey ? !!(eventModules as any)[apiKey] : m.enabled;
-      return { ...m, enabled: m.required ? true : enabledFromApi };
-    }));
+    setModules((prev) =>
+      prev.map((m) => {
+        const keyMap: Record<string, string> = {
+          Venue: "venue",
+          Vendors: "vendors",
+          Guests: "guest",
+          Schedule: "schedule",
+          Logistics: "logistics",
+          Budget: "budget",
+          Gallery: "gallery",
+          HappiVid: "happiVids",
+          Analytics: "analytics",
+          Approval: "approval",
+        };
+        const apiKey = keyMap[m.name];
+        const enabledFromApi = apiKey ? !!(eventModules as any)[apiKey] : m.enabled;
+        return { ...m, enabled: m.required ? true : enabledFromApi };
+      })
+    );
   }, [eventModules]);
 
   const [isScheduleActive] = useState(true);
@@ -106,32 +153,27 @@ export default function ModulesTab({ eventActivities, eventBudget, eventVenues, 
   ];
 
   const budgetSuggestions = useMemo(() => {
-    if (eventBudget && Array.isArray(eventBudget.categories) && eventBudget.categories.length > 0) {
-      return eventBudget.categories.map((cat: any) => ({
-        category: cat.name,
-        amount: cat.amount,
-        percentage: cat.percent,
-        currency: eventBudget.currency === 'INR' ? '₹' : ''
-      }));
-    }
-    return [
-      { category: "Venue & Accommodation", amount: 500000, percentage: 25, currency: "₹" },
-      { category: "Catering (Multi-cuisine)", amount: 450000, percentage: 28, currency: "₹" },
-      { category: "Decorations & Mandap", amount: 350000, percentage: 15, currency: "₹" },
-      { category: "Photography & Videography", amount: 200000, percentage: 10, currency: "₹" },
-      { category: "Entertainment (DJ, Band, Artists)", amount: 150000, percentage: 8, currency: "₹" },
-      { category: "Makeup & Styling", amount: 80000, percentage: 4, currency: "₹" },
-      { category: "Wedding Cards & Favors", amount: 75000, percentage: 5, currency: "₹" },
-      { category: "Transportation & Logistics", amount: 100000, percentage: 5, currency: "₹" },
-    ];
+    const categories = eventBudget?.categories ?? [];
+    const currency = eventBudget?.currency === "INR" ? "₹" : "";
+    const total = eventBudget?.total ?? 0;
+
+    return categories.map((cat) => ({
+      category: cat.name,
+      amount: cat.amount,
+      percentage: cat.percent,
+      currency,
+      total,
+    }));
   }, [eventBudget]);
 
   const venueSuggestions = useMemo(() => {
     if (Array.isArray(eventVenues) && eventVenues.length > 0) {
-      return eventVenues.map((v: any) => ({
-        name: v.name || '',
-        capacity: v.capacity || (v.capacityMin && v.capacityMax ? `${v.capacityMin}-${v.capacityMax}` : ''),
-        style: v.style || '',
+      return eventVenues.map((v: EventVenue) => ({
+        name: v.name || "",
+        capacity:
+          v.capacity?.toString() ||
+          (v.capacityMin && v.capacityMax ? `${v.capacityMin}-${v.capacityMax}` : ""),
+        style: v.style || "",
       }));
     }
     return [
@@ -145,14 +187,13 @@ export default function ModulesTab({ eventActivities, eventBudget, eventVenues, 
   const hasActiveModules = isScheduleActive || isBudgetActive || isVenueActive;
   const activeAICount = [isScheduleActive, isBudgetActive, isVenueActive].filter(Boolean).length;
 
-  // Assuming eventActivities is available in this scope
   const activitiesByDay = useMemo(() => {
-    const acc: Record<string, Array<{ time: string; duration: string; activity: string; originalIndex: number }>> = {};
+    const acc: Record<string, FormattedActivity[]> = {};
     let index = 0;
-    eventActivities.forEach((dayItem, dayIdx) => {
+    eventActivities.forEach((dayItem: DayActivities, dayIdx: number) => {
       const dayKey = `Day ${dayIdx + 1}`;
-      acc[dayKey] = dayItem.items.map((activity) => {
-        const formattedActivity = {
+      acc[dayKey] = dayItem.items.map((activity: ActivityItem) => {
+        const formattedActivity: FormattedActivity = {
           time: activity.startTime,
           duration: `${activity.durationMinutes} min`,
           activity: activity.title,
@@ -164,23 +205,19 @@ export default function ModulesTab({ eventActivities, eventBudget, eventVenues, 
     return acc;
   }, [eventActivities]);
 
-  // Days for tabs
   const days = Object.keys(activitiesByDay).sort();
-
-  // Current day activities
   const currentDayActivities = activitiesByDay[selectedDay] || [];
+  const selectedInDay = currentDayActivities.filter((item: FormattedActivity) =>
+    selectedActivities.has(item.originalIndex)
+  ).length;
 
-  // Selected count in the current day
-  const selectedInDay = currentDayActivities.filter((item) => selectedActivities.has(item.originalIndex)).length;
-
-
-    const selectedBudgetTotal = budgetSuggestions
-    .filter((_, i) => selectedBudgetItems.has(i))
-    .reduce((sum, item) => sum + item.amount, 0);
+  const selectedBudgetTotal = budgetSuggestions
+    .filter((_: unknown, i: number) => selectedBudgetItems.has(i))
+    .reduce((sum: number, item: { amount: number }) => sum + item.amount, 0);
 
   const toggleModule = (index: number) => {
     if (modules[index].required) return;
-    setModules(prev => {
+    setModules((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], enabled: !updated[index].enabled };
       return updated;
@@ -195,24 +232,26 @@ export default function ModulesTab({ eventActivities, eventBudget, eventVenues, 
 
   const selectAllInDay = () => {
     const s = new Set(selectedActivities);
-    currentDayActivities.forEach((i) => s.add(i.originalIndex));
+    currentDayActivities.forEach((i: FormattedActivity) => s.add(i.originalIndex));
     setSelectedActivities(s);
   };
 
   const clearDay = () => {
     const s = new Set(selectedActivities);
-    currentDayActivities.forEach((i) => s.delete(i.originalIndex));
+    currentDayActivities.forEach((i: FormattedActivity) => s.delete(i.originalIndex));
     setSelectedActivities(s);
   };
+const toggleBudgetItem = (index: number) => {
+  setSelectedBudgetItems(prev => {
+    const newSet = new Set(prev);
+    newSet.has(index) ? newSet.delete(index) : newSet.add(index);
+    return newSet;
+  });
+};
 
-  const toggleBudgetItem = (idx: number) => {
-    const s = new Set(selectedBudgetItems);
-    s.has(idx) ? s.delete(idx) : s.add(idx);
-    setSelectedBudgetItems(s);
-  };
+  const selectAllBudgetItems = () => setSelectedBudgetItems(new Set(budgetSuggestions.map((_, i) => i)));
 
-  const selectAllBudgetItems = () => setSelectedBudgetItems(new Set(budgetSuggestions.map((_: unknown, i: number) => i)));
-  const deselectAllBudgetItems = () => setSelectedBudgetItems(new Set());
+const deselectAllBudgetItems = () => setSelectedBudgetItems(new Set());
 
   const toggleVenue = (idx: number) => {
     const s = new Set(selectedVenues);
@@ -220,14 +259,15 @@ export default function ModulesTab({ eventActivities, eventBudget, eventVenues, 
     setSelectedVenues(s);
   };
 
-  const selectAllVenues = () => setSelectedVenues(new Set(venueSuggestions.map((_, i) => i)));
+  const selectAllVenues = () =>
+    setSelectedVenues(new Set(venueSuggestions.map((_: unknown, i: number) => i)));
+
   const deselectAllVenues = () => setSelectedVenues(new Set());
 
-  // Dynamic counts
-  const totalModules = modules.filter((m) => m.name !== 'Overview').length;
-  const enabledCount = modules.filter((m) => m.enabled || m.required).length;
-  const aiEnabledCount = modules.filter(m => m.ai && (m.enabled || m.required)).length;
-
+  const totalModules = modules.filter((m: Module) => m.name !== "Overview").length;
+  const enabledCount = modules.filter((m: Module) => m.enabled || m.required).length;
+  const aiEnabledCount = modules.filter((m: Module) => m.ai && (m.enabled || m.required)).length;
+  const budget= sessionStorage.getItem("aiEventBudget");
   return (
     <div
       data-state="active"
@@ -253,7 +293,6 @@ export default function ModulesTab({ eventActivities, eventBudget, eventVenues, 
           </div>
         </div>
       </div>
-
       {/* STEP 1: AI SUGGESTIONS */}
       <div
         data-slot="card"
@@ -424,107 +463,139 @@ export default function ModulesTab({ eventActivities, eventBudget, eventVenues, 
                 </div>
               )}
 
-              {/* BUDGET */}
-              {isBudgetActive && (
-                <div className={`text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-[var(--brand-pink)]/30 bg-gradient-to-br  ${theme==="light"?"from-pink-50/50 to-purple-50/50":"dark:from-pink-950/10 dark:to-purple-950/10"}`}>
-                  <div className="px-6 pt-6 pb-3">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-9 w-9 rounded-lg bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-purple)] flex items-center justify-center">
-                          <DollarSign className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h4 className="text-base">Budget</h4>
-                          <p className="tracking-wide opacity-60 text-xs">8 categories</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-gradient-to-br from-[var(--brand-pink)]/10 to-[var(--brand-purple)]/10 border border-[var(--brand-pink)]/30">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs tracking-wide opacity-60">Selected Total</span>
-                        <span className="font-mono font-semibold text-[var(--brand-pink)]">
-                          ₹{selectedBudgetTotal.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className={`flex items-center justify-between p-2 rounded-lg  border border-[var(--brand-pink)]/20 mt-2 ${theme==="light"?"bg-white/50" :"bg-black/10"}`}>
-                      <span className="text-xs tracking-wide opacity-60">Selected</span>
-                      <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-teal)] text-white border-0">
-                        <span>{selectedBudgetItems.size}</span> of <span>{budgetSuggestions.length}</span>
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-3">
-  <button
-    onClick={selectAllBudgetItems}
-    className={`inline-flex items-center justify-center whitespace-nowrap font-medium transition-all outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border bg-background text-foreground hover:text-accent-foreground rounded-md px-3 flex-1 h-8 text-xs gap-2
-      ${theme==="light"?"hover:bg-accent bg-white border-gray-300":"border-neutral-800 bg-input/30 border-input hover:bg-input/50"}`}
-  >
-    <CircleCheck className="h-3.5 w-3.5" />
-    Keep All
-  </button>
-  <button
-    onClick={deselectAllBudgetItems}
-    className={`inline-flex items-center justify-center whitespace-nowrap font-medium transition-all outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border bg-background text-foreground hover:text-accent-foreground rounded-md px-3 flex-1 h-8 text-xs gap-2
-      ${theme==="light"?"hover:bg-accent bg-white border-gray-300":"border-neutral-800 bg-input/30 border-input hover:bg-input/50"}`}
-  >
-    <X className="h-3.5 w-3.5" />
-    Clear
-  </button>
-</div>
-
-                  </div>
-                  <div className="px-6 [&:last-child]:pb-6">
-                    <div className="space-y-1.5 max-h-80 overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-width-thin scrollbar-color-[var(--muted-foreground)/30]_[transparent]">
-                      {budgetSuggestions.map((item, i) => {
-                        const selected = selectedBudgetItems.has(i);
-                        return (
-                         <div
-  key={i}
-  onClick={() => toggleBudgetItem(i)}
-  className={`flex items-start gap-2 p-2 rounded-lg border cursor-pointer transition-all group
-    ${selected
-      ? theme === "light"
-        ? "bg-white border-[var(--brand-pink)]/40 shadow-sm"
-        : "bg-black/20 border-[var(--brand-pink)]/50 shadow-sm"
-      : theme === "light"
-        ? "bg-muted/30 border-border/50 opacity-60 hover:opacity-80"
-        : "bg-muted/20 border-border/30 opacity-50 hover:opacity-70"
+             {/* BUDGET */}
+{isBudgetActive && (
+  <div
+    className={`text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-[var(--brand-pink)]/30 bg-gradient-to-br ${
+      theme === "light"
+        ? "from-pink-50/50 to-purple-50/50"
+        : "dark:from-pink-950/10 dark:to-purple-950/10"
     }`}
->
+  >
+    <div className="px-6 pt-6 pb-3">
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className="h-9 w-9 rounded-lg bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-purple)] flex items-center justify-center">
+            <DollarSign className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h4 className="text-base">Budget</h4>
+            <p className="tracking-wide opacity-60 text-xs">
+              {budgetSuggestions.length} categories
+            </p>
+          </div>
+        </div>
+      </div>
 
-                            <div
-                              className={`h-4 w-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all mt-0.5 ${
-                                selected
-                                  ? "bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-purple)] border-transparent"
-                                  : "border-muted-foreground/30 group-hover:border-muted-foreground/50"
-                              }`}
-                            >
-                              {selected && <Check className="h-3 w-3 text-white" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-1">
-                                <span className={`text-sm ${selected ? "" : "text-muted-foreground"}`}>{item.category}</span>
-                                <span className={`font-mono text-sm ${selected ? "text-[var(--brand-pink)]" : "text-muted-foreground"}`}>
-                                  ₹{item.amount.toLocaleString()}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                                  <div
-                                    className={`h-full  transition-all ${selected ? "bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-teal)]" : "bg-muted-foreground/30"}`}
-                                    style={{ width: `${item.percentage}%` }}
-                                  />
-                                </div>
-                                <span className="text-xs tracking-wide opacity-60 w-8 text-right">{item.percentage}%</span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+      <div className="p-2.5 rounded-lg bg-gradient-to-br from-[var(--brand-pink)]/10 to-[var(--brand-purple)]/10 border border-[var(--brand-pink)]/30">
+        <div className="flex items-center justify-between">
+          <span className="text-xs tracking-wide opacity-60">Selected Total</span>
+          <span className="font-mono font-semibold text-[var(--brand-pink)]">
+            ₹{selectedBudgetTotal.toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      <div
+        className={`flex items-center justify-between p-2 rounded-lg border border-[var(--brand-pink)]/20 mt-2 ${
+          theme === "light" ? "bg-white/50" : "bg-black/10"
+        }`}
+      >
+        <span className="text-xs tracking-wide opacity-60">Selected</span>
+        <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-teal)] text-white border-0">
+          <span>{selectedBudgetItems.size}</span> of <span>{budgetSuggestions.length}</span>
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 mt-3">
+        <button
+          onClick={selectAllBudgetItems}
+          className={`inline-flex items-center justify-center whitespace-nowrap font-medium transition-all outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border bg-background text-foreground hover:text-accent-foreground rounded-md px-3 flex-1 h-8 text-xs gap-2 ${
+            theme === "light"
+              ? "hover:bg-accent bg-white border-gray-300"
+              : "border-neutral-800 bg-input/30 border-input hover:bg-input/50"
+          }`}
+        >
+          <CircleCheck className="h-3.5 w-3.5" />
+          Keep All
+        </button>
+        <button
+          onClick={deselectAllBudgetItems}
+          className={`inline-flex items-center justify-center whitespace-nowrap font-medium transition-all outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border bg-background text-foreground hover:text-accent-foreground rounded-md px-3 flex-1 h-8 text-xs gap-2 ${
+            theme === "light"
+              ? "hover:bg-accent bg-white border-gray-300"
+              : "border-neutral-800 bg-input/30 border-input hover:bg-input/50"
+          }`}
+        >
+          <X className="h-3.5 w-3.5" />
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div className="px-6 [&:last-child]:pb-6">
+      <div className="space-y-1.5 max-h-80 overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-width-thin scrollbar-color-[var(--muted-foreground)/30]_[transparent]">
+        {budgetSuggestions.map((item, i) => {
+          const selected = selectedBudgetItems.has(i);
+          return (
+            <div
+              key={i}
+              onClick={() => toggleBudgetItem(i)}
+              className={`flex items-start gap-2 p-2 rounded-lg border cursor-pointer transition-all group
+                ${
+                  selected
+                    ? theme === "light"
+                      ? "bg-white border-[var(--brand-pink)]/40 shadow-sm"
+                      : "bg-black/20 border-[var(--brand-pink)]/50 shadow-sm"
+                    : theme === "light"
+                    ? "bg-muted/30 border-border/50 opacity-60 hover:opacity-80"
+                    : "bg-muted/20 border-border/30 opacity-50 hover:opacity-70"
+                }`}
+            >
+              <div
+                className={`h-4 w-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all mt-0.5 ${
+                  selected
+                    ? "bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-purple)] border-transparent"
+                    : "border-muted-foreground/30 group-hover:border-muted-foreground/50"
+                }`}
+              >
+                {selected && <Check className="h-3 w-3 text-white" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-sm ${selected ? "" : "text-muted-foreground"}`}>
+                    {item.category}
+                  </span>
+                  <span
+                    className={`font-mono text-sm ${
+                      selected ? "text-[var(--brand-pink)]" : "text-muted-foreground"
+                    }`}
+                  >
+                    ₹{item.amount.toLocaleString()}
+                  </span>
                 </div>
-              )}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={`h-full  transition-all ${
+                        selected
+                          ? "bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-teal)]"
+                          : "bg-muted-foreground/30"
+                      }`}
+                      style={{ width: `${item.percentage}%` }}
+                    />
+                  </div>
+                  <span className="text-xs tracking-wide opacity-60 w-8 text-right">{item.percentage}%</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
+
 
               {/* VENUES */}
               {isVenueActive && (

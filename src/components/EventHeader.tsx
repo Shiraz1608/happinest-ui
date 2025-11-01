@@ -11,12 +11,13 @@ const EventHeader = () => {
 
   return (
     <div
-      className={`relative z-10 border-b w-full backdrop-blur-sm shadow-sm transition-colors duration-500 ${
-        theme === "light"
-          ? "border-gray-100 bg-white/80"
-          : "bg-gray-900"
-      }`}
-    >
+  className={`relative z-10 w-full backdrop-blur-sm shadow-sm transition-colors duration-500 border-b ${
+    theme === "light"
+      ? "border-gray-100 bg-white/80"
+      : "border-gray-700 bg-gray-900"
+  }`}
+>
+
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center px-8 py-6 gap-4">
         {/* Header Text */}
         <div>

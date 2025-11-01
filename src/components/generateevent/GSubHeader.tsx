@@ -3,11 +3,15 @@
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { useTheme } from '@/app/providers/ThemeProvider';
 import { useRouter } from 'next/navigation';
+import { GenerateEvent,RegenerateEvent } from "@/app/hook/GenerateEvent";
+import React, { useState, useEffect } from "react";
 
-export default function StickyNav() {
+export default function StickyNav({ setGlobalLoading }: { setGlobalLoading: (value: boolean) => void }) {
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+  const [Animationloading, setAnimationloading] = useState(false);
 
+  const [error, setError] = useState("");
   const handleContinue = async () => {
     try {
       const readJSON = (key: string, fallback: any) => {
@@ -125,13 +129,22 @@ export default function StickyNav() {
         alert((data && (data.validationMessage || data.message)) || `Failed to save AI event. (${res.status})`);
         return;
       }
-
-      router.push("/eventconfiguration");
+ if (res.ok) {
+    alert("Event Saved Successfully!");
+  } else {
+    alert((data && (data.validationMessage || data.message)) || `(${res.status})`);
+  }
+      //router.push("/eventconfiguration");
     } catch (err) {
       console.error("Error while saving AI event", err);
       alert("Something went wrong while saving the event.");
     }
   };
+
+  const handleEditPrompt = () => {
+    router.back(); // ✅ Go back to the previous page in browser history
+  };
+  
 
   return (
     <div
@@ -141,7 +154,8 @@ export default function StickyNav() {
     >
       <div className="max-w-6xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-4">
-          <button
+          <button       onClick={handleEditPrompt}
+
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 gap-2 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -157,7 +171,8 @@ export default function StickyNav() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button
+            <button   onClick={() => RegenerateEvent(router, setGlobalLoading, setError, setAnimationloading)}
+
               className={`inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 border text-foreground hover:bg-gray-200 dark:hover:bg-gray-800 dark:bg-neutral-800/30 h-9 px-4 py-2 gap-2
                 ${theme==="light"?
 "border-gray-300":"border-neutral-500 bg-input/30  hover:bg-input/50 hover:bg-neutral-700 bg-neutral-800 border-gray-300"
@@ -171,7 +186,7 @@ export default function StickyNav() {
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 hover:opacity-90 shadow-sm h-9 px-4 py-2 bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-teal)] text-white border-0 gap-2"
               onClick={handleContinue}
             >
-              <span className="hidden sm:inline">Continue to Workspace</span>
+              <span className="hidden sm:inline">Get Started</span>
               <span className="sm:hidden">Continue</span>
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </button>

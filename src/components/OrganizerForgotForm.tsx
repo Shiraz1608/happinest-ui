@@ -70,7 +70,7 @@ export default function VerifyEmailForm() {
         router.push("/validateotp");
       } else {
         setToast({
-          message: textResponse || "Something went wrong",
+          message: "Email not exists!",
           type: "warning",
         });
       }

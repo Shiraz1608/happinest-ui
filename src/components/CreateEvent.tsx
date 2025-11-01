@@ -12,10 +12,10 @@ export default function EmptyEventsCard() {
   const cardBg =
     theme === 'light'
       ? 'bg-white border border-gray-300'
-      : 'bg-gray-900 border border-white/10';
+      : 'bg-gray-900 border-gray-600';
 
   return (
-    <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
+    <div className="relative">
       <Card
         className={`${cardBg} backdrop-blur-sm transition-colors duration-300 h-[400px] flex items-center justify-center`}
       >
@@ -24,9 +24,17 @@ export default function EmptyEventsCard() {
             <Calendar className="h-10 w-10 text-white" />
           </div>
 
-          <h3 className="text-2xl font-semibold mb-3">No events yet</h3>
+          <h3 className={`text-2xl font-semibold mb-3 ${
+        theme === "dark"
+          ? "text-white"
+          : "text-black"
+      }`}>No events yet</h3>
 
-          <p className="text-muted-foreground mb-8 text-base">
+          <p  className={`text-muted-foreground mb-8 text-base ${
+        theme === "dark"
+          ? "text-white"
+          : "text-black"
+      }`} >
             Create your first event to get started
           </p>
 

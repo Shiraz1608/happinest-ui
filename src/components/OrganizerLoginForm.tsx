@@ -63,14 +63,22 @@ export default function OrganizerLoginForm() {
         data = {};
       }
 
-      if (!res.ok) {
-        setToast({
-          message: data.validationMessage || `❌ Login failed: ${res.statusText}`,
-          type: "warning",
-        });
-        setLoading(false);
-        return;
-      }
+    if (!res.ok) {
+  let message = data?.validationMessage || `❌ Login failed: Invalid credentials.`;
+
+  // 🔍 Handle specific status codes
+  if (res.status === 400 || res.status === 401) {
+    message = "Invalid credentials. Please check your username or password.";
+  }
+
+  setToast({
+    message,
+    type: "warning",
+  });
+
+  setLoading(false);
+  return;
+}
 
       if (data.responseStatus && data.token) {
         sessionStorage.setItem("token", data.token);

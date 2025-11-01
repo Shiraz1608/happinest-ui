@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import {
   Sparkles,
-  ArrowRight,
   Camera,
   Music,
   Heart,
@@ -13,7 +12,6 @@ import { ReactElement } from "react"; // ✅ add this import at the top
 
 type ShapeType =
   | "sparkles"
-  | "arrow"
   | "camera"
   | "music"
   | "heart"
@@ -34,7 +32,6 @@ export default function EventAnimation() {
   useEffect(() => {
     const icons: ShapeType[] = [
       "sparkles",
-      "arrow",
       "camera",
       "music",
       "heart",
@@ -65,7 +62,7 @@ export default function EventAnimation() {
             transform: translateY(0) scale(0.8);
           }
           50% {
-            opacity: 1;
+            opacity: 0.6;
             transform: translateY(-10px) scale(1);
           }
           100% {
@@ -103,7 +100,6 @@ function ShapeSVG({ shape }: { shape: Shape }) {
 
   const colorPalette = [
     "#f472b6", // pink-400
-    "#f472b6", // blue-400
     "#f472b6", // green-400
     "#f472b6", // amber-400
     "#f472b6", // violet-400
@@ -112,10 +108,10 @@ function ShapeSVG({ shape }: { shape: Shape }) {
   ];
 
   const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+  const opacity = 0.4 + Math.random() * 0.3; // random transparency between 0.4–0.7
 
-const icons: Record<ShapeType, ReactElement> = {
+  const icons: Record<ShapeType, ReactElement> = {
     sparkles: <Sparkles color={color} {...commonProps} />,
-    arrow: <ArrowRight color={color} {...commonProps} />,
     camera: <Camera color={color} {...commonProps} />,
     music: <Music color={color} {...commonProps} />,
     heart: <Heart color={color} {...commonProps} />,
@@ -129,6 +125,7 @@ const icons: Record<ShapeType, ReactElement> = {
       style={{
         top: shape.top,
         left: shape.left,
+        opacity, // 👈 apply soft transparency
         animation: `twinkle ${shape.animationDuration} infinite ease-in-out`,
         animationDelay: shape.animationDelay,
       }}

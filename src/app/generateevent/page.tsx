@@ -12,6 +12,7 @@ import { LoadingAnimation } from '@/components/LoadingAnimation';
 export default function GenerateEventPage() {
    const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(false); // ✅ new global loading state
 
   // Simulate loading delay or wait for data in real use case
   useEffect(() => {
@@ -69,7 +70,10 @@ export default function GenerateEventPage() {
     }
   }, []);
 
-  if (isLoading) {
+  if (isPageLoading) {
+    return <LoadingAnimation />;
+  }
+if (isLoading) {
     return <LoadingAnimation />;
   }
 
@@ -80,11 +84,13 @@ export default function GenerateEventPage() {
       : 'bg-gradient-to-r from-[#141018] via-[#0f1013] to-[#0a0c10]';
 
   return (
+    
     <div className="flex flex-col min-h-screen">
       <Header />
       <div className="flex-1 pt-15">
         <div className={`min-h-screen w-full ${mainStyle}`}>
-          <StickyNav />
+                    <StickyNav setGlobalLoading={setIsPageLoading} />
+
           <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
             {eventData && (<RecommendationCard  data={eventData}/>)}
             <EventCard />

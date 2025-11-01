@@ -77,34 +77,8 @@ const { theme } = useTheme(); // "light" or "dark"
       signOut({ callbackUrl: "/login" }); // Google logout
     }
   };
-  //  Loading State
-  if (status === "loading" && !manualSession) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-xl font-medium">
-        Loading...
-      </div>
-    );
-  }
 
-  //  Not Logged In
-  if (!session && !manualSession) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center px-6">
-        <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-12 text-center max-w-2xl w-full">
-          <h1 className="text-3xl font-semibold mb-6">Welcome to Happinest</h1>
-          <p className="text-gray-600 text-lg md:text-xl mb-8">
-            Please sign in to continue.
-          </p>
-          <Link
-            href="/login"
-            className="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-xl shadow-lg transition transform hover:-translate-y-1"
-          >
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
+
 
   const displayName =
     session?.user?.name || manualSession?.user?.name || response?.fullName;
@@ -134,9 +108,8 @@ const { theme } = useTheme(); // "light" or "dark"
     >      <EventAnimation />
       <OrganizerHeader />
       <EventHeader />
-
-      {/* 🔹 Conditional Rendering */}
-      {hasEvents ? <DashboardMain /> : <EmptyEventsCard />}
+<DashboardMain /> 
+    
     </div>
   );
 }
